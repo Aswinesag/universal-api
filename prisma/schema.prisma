@@ -1,0 +1,42 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model ApiConnector {
+  id              String          @id @default(uuid())
+  slug            String          @unique // Used in endpoint URL: /api/v1/run/[slug]
+  name            String
+  description     String
+  provider        String          // "openai", "gemini"
+  model           String          // "gpt-4o-mini", "gemini-1.5-flash"
+  systemPrompt    String
+  inputParameters String          // Stored as stringified JSON string: Array of [{ name, type, required, description }]
+  outputSchema    String          // Stored as stringified JSON string: Expected output JSON structure
+  apiKey          String          // Custom authentication key for endpoint
+  isActive        Boolean         @default(true)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  logs            ApiRequestLog[]
+}
+
+model ApiRequestLog {
+  id               String       @id @default(uuid())
+  connectorId      String
+  connector        ApiConnector @relation(fields: [connectorId], references: [id], onDelete: Cascade)
+  status           String       // "SUCCESS" | "FAILED"
+  statusCode       Int
+  responseTimeMs   Int
+  promptTokens     Int?
+  completionTokens Int?
+  totalTokens      Int?
+  estimatedCost    Float?
+  errorMessage     String?
+  requestPayload   String?      // Stored as stringified JSON string
+  responsePayload  String?      // Stored as stringified JSON string
+  createdAt        DateTime     @default(now())
+}
