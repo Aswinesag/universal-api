@@ -49,7 +49,7 @@ git push -u origin main
    - **Runtime**: `Node`
    - **Build Command**:
      ```bash
-     npm install && npx prisma generate && npm run build
+     npm install --include=dev && npx prisma generate && npm run build
      ```
    - **Start Command**:
      ```bash
